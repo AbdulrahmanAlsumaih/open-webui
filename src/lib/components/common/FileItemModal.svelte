@@ -5,11 +5,12 @@
 
 	const i18n = getContext('i18n');
 
-	import Modal from './Modal.svelte';
-	import XMark from '../icons/XMark.svelte';
-	import Info from '../icons/Info.svelte';
-	import Switch from './Switch.svelte';
-	import Tooltip from './Tooltip.svelte';
+        import Modal from './Modal.svelte';
+        import XMark from '../icons/XMark.svelte';
+        import Info from '../icons/Info.svelte';
+        import Switch from './Switch.svelte';
+        import Tooltip from './Tooltip.svelte';
+        import CTViewer from '../medical/CTViewer.svelte';
 
 	export let item;
 	export let show = false;
@@ -17,20 +18,25 @@
 
 	let enableFullContent = false;
 
-	let isPdf = false;
-	let isAudio = false;
+        let isPdf = false;
+        let isAudio = false;
+        let isCT = false;
 
 	$: isPDF =
 		item?.meta?.content_type === 'application/pdf' ||
 		(item?.name && item?.name.toLowerCase().endsWith('.pdf'));
 
-	$: isAudio =
-		(item?.meta?.content_type ?? '').startsWith('audio/') ||
-		(item?.name && item?.name.toLowerCase().endsWith('.mp3')) ||
-		(item?.name && item?.name.toLowerCase().endsWith('.wav')) ||
-		(item?.name && item?.name.toLowerCase().endsWith('.ogg')) ||
-		(item?.name && item?.name.toLowerCase().endsWith('.m4a')) ||
-		(item?.name && item?.name.toLowerCase().endsWith('.webm'));
+        $: isAudio =
+                (item?.meta?.content_type ?? '').startsWith('audio/') ||
+                (item?.name && item?.name.toLowerCase().endsWith('.mp3')) ||
+                (item?.name && item?.name.toLowerCase().endsWith('.wav')) ||
+                (item?.name && item?.name.toLowerCase().endsWith('.ogg')) ||
+                (item?.name && item?.name.toLowerCase().endsWith('.m4a')) ||
+                (item?.name && item?.name.toLowerCase().endsWith('.webm'));
+
+        $: isCT =
+                (item?.name && item?.name.toLowerCase().endsWith('.mhd')) ||
+                (item?.name && item?.name.toLowerCase().endsWith('.raw'));
 
 	onMount(() => {
 		console.log(item);
@@ -126,27 +132,29 @@
 			</div>
 		</div>
 
-		<div class="max-h-[75vh] overflow-auto">
-			{#if isPDF}
-				<iframe
-					title={item?.name}
-					src={`${WEBUI_API_BASE_URL}/files/${item.id}/content`}
-					class="w-full h-[70vh] border-0 rounded-lg mt-4"
-				/>
-			{:else}
-				{#if isAudio}
-					<audio
-						src={`${WEBUI_API_BASE_URL}/files/${item.id}/content`}
-						class="w-full border-0 rounded-lg mb-2"
-						controls
-						playsinline
-					/>
-				{/if}
+                <div class="max-h-[75vh] overflow-auto">
+                        {#if isPDF}
+                                <iframe
+                                        title={item?.name}
+                                        src={`${WEBUI_API_BASE_URL}/files/${item.id}/content`}
+                                        class="w-full h-[70vh] border-0 rounded-lg mt-4"
+                                />
+                        {:else if isCT}
+                                <CTViewer {item} on:select={() => (show = false)} />
+                        {:else}
+                                {#if isAudio}
+                                        <audio
+                                                src={`${WEBUI_API_BASE_URL}/files/${item.id}/content`}
+                                                class="w-full border-0 rounded-lg mb-2"
+                                                controls
+                                                playsinline
+                                        />
+                                {/if}
 
-				<div class="max-h-96 overflow-scroll scrollbar-hidden text-xs whitespace-pre-wrap">
-					{item?.file?.data?.content ?? 'No content'}
-				</div>
-			{/if}
-		</div>
+                                <div class="max-h-96 overflow-scroll scrollbar-hidden text-xs whitespace-pre-wrap">
+                                        {item?.file?.data?.content ?? 'No content'}
+                                </div>
+                        {/if}
+                </div>
 	</div>
 </Modal>
