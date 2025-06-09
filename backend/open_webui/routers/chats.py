@@ -17,6 +17,7 @@ from open_webui.models.folders import Folders
 from open_webui.config import ENABLE_ADMIN_CHAT_ACCESS, ENABLE_ADMIN_EXPORT
 from open_webui.constants import ERROR_MESSAGES
 from open_webui.env import SRC_LOG_LEVELS
+from open_webui.routers.ct import delete_conversion_directory
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel
 
@@ -533,8 +534,20 @@ async def delete_chat_by_id(request: Request, id: str, user=Depends(get_verified
             if Chats.count_chats_by_tag_name_and_user_id(tag, user.id) == 1:
                 Tags.delete_tag_by_name_and_user_id(tag, user.id)
 
-        result = Chats.delete_chat_by_id(id)
+        # Clean up any CT conversion files associated with this chat
+        try:
+            # Extract conversion IDs from chat messages
+            for message in chat.meta.get("history", {}).get("messages", {}).values():
+                if message.get("files"):
+                    for file in message["files"]:
+                        if file.get("type") == "ct_conversion":
+                            conversion_id = file.get("conversion_id")
+                            if conversion_id:
+                                delete_conversion_directory(conversion_id)
+        except Exception as e:
+            logging.error(f"Failed to clean up CT conversion files for chat {id}: {e}")
 
+        result = Chats.delete_chat_by_id(id)
         return result
     else:
         if not has_permission(
@@ -549,6 +562,19 @@ async def delete_chat_by_id(request: Request, id: str, user=Depends(get_verified
         for tag in chat.meta.get("tags", []):
             if Chats.count_chats_by_tag_name_and_user_id(tag, user.id) == 1:
                 Tags.delete_tag_by_name_and_user_id(tag, user.id)
+
+        # Clean up any CT conversion files associated with this chat
+        try:
+            # Extract conversion IDs from chat messages
+            for message in chat.meta.get("history", {}).get("messages", {}).values():
+                if message.get("files"):
+                    for file in message["files"]:
+                        if file.get("type") == "ct_conversion":
+                            conversion_id = file.get("conversion_id")
+                            if conversion_id:
+                                delete_conversion_directory(conversion_id)
+        except Exception as e:
+            logging.error(f"Failed to clean up CT conversion files for chat {id}: {e}")
 
         result = Chats.delete_chat_by_id_and_user_id(id, user.id)
         return result

@@ -54,6 +54,8 @@
 
 	import { KokoroWorker } from '$lib/workers/KokoroWorker';
 
+	import CTScanPopup from '../medical/CTScanPopup.svelte';
+
 	const i18n = getContext('i18n');
 
 	export let transparentBackground = false;
@@ -176,6 +178,12 @@
 		$config?.features?.enable_code_interpreter &&
 		($_user.role === 'admin' || $_user?.permissions?.features?.code_interpreter);
 
+	let showCTPopup = false;
+	let ctFiles = {
+		mhd: null,
+		raw: null
+	};
+
 	const scrollToBottom = () => {
 		const element = document.getElementById('messages-container');
 		element.scrollTo({
@@ -250,18 +258,13 @@
 		files = [...files, fileItem];
 
 		try {
-			// If the file is an audio file, provide the language for STT.
 			let metadata = null;
-			if (
-				(file.type.startsWith('audio/') || file.type.startsWith('video/')) &&
-				$settings?.audio?.stt?.language
-			) {
+			if ((file.type.startsWith('audio/') || file.type.startsWith('video/')) && $settings?.audio?.stt?.language) {
 				metadata = {
 					language: $settings?.audio?.stt?.language
 				};
 			}
 
-			// During the file upload, file content is automatically extracted.
 			const uploadedFile = await uploadFile(localStorage.token, file, metadata);
 
 			if (uploadedFile) {
@@ -279,9 +282,26 @@
 				fileItem.status = 'uploaded';
 				fileItem.file = uploadedFile;
 				fileItem.id = uploadedFile.id;
-				fileItem.collection_name =
-					uploadedFile?.meta?.collection_name || uploadedFile?.collection_name;
+				fileItem.collection_name = uploadedFile?.meta?.collection_name || uploadedFile?.collection_name;
 				fileItem.url = `${WEBUI_API_BASE_URL}/files/${uploadedFile.id}`;
+
+				// Check if this is a CT file
+				if (file.name.toLowerCase().endsWith('.mhd')) {
+					ctFiles.mhd = {
+						id: uploadedFile.id,
+						name: file.name
+					};
+				} else if (file.name.toLowerCase().endsWith('.raw')) {
+					ctFiles.raw = {
+						id: uploadedFile.id,
+						name: file.name
+					};
+				}
+
+				// If we have both CT files, show the popup
+				if (ctFiles.mhd && ctFiles.raw) {
+					showCTPopup = true;
+				}
 
 				files = files;
 			} else {
@@ -446,6 +466,23 @@
 			dropzoneElement?.removeEventListener('dragleave', onDragLeave);
 		}
 	});
+
+	function handleCTSelection(event) {
+		const { slices, files: selectedFiles } = event.detail;
+		// Process each selected file through the standard image upload process
+		if (selectedFiles && selectedFiles.length > 0) {
+			inputFilesHandler(selectedFiles);
+		}
+		// Remove the CT files from the files array
+		files = files.filter(file => 
+			!(file.name?.toLowerCase().endsWith('.mhd') || file.name?.toLowerCase().endsWith('.raw'))
+		);
+		// Reset CT files after selection
+		ctFiles = {
+			mhd: null,
+			raw: null
+		};
+	}
 </script>
 
 <FilesOverlay show={dragged} />
@@ -1526,4 +1563,13 @@
 			</div>
 		</div>
 	</div>
+{/if}
+
+{#if showCTPopup}
+	<CTScanPopup 
+		bind:show={showCTPopup}
+		mhdFile={ctFiles.mhd}
+		rawFile={ctFiles.raw}
+		on:select={handleCTSelection}
+	/>
 {/if}

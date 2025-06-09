@@ -1,0 +1,18 @@
+# Frontend stage
+FROM node:20-slim as frontend
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run pyodide:fetch
+
+# Backend stage
+FROM python:3.11-slim as backend
+WORKDIR /app
+
+# Install Python dependencies
+COPY backend/requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application
+COPY . . 

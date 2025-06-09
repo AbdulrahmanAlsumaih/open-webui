@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: frontend
+    container_name: open-webui-frontend
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:8000
+      - WEBUI_AUTH=false
+    depends_on:
+      - backend
+    command: npm run dev -- --host 0.0.0.0 --port 3000
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      target: backend
+    container_name: open-webui-backend
+    volumes:
+      - .:/app
+      - /app/backend/venv
+      - ./backend/data:/app/backend/data
+    ports:
+      - "8080:8080"
+    environment:
+      - ENVIRONMENT=development
+      - WEBUI_AUTH=false
+      - PYTHONPATH=/app/backend
+      - PORT=8080
+      - WEBUI_URL=http://localhost:3000
+      - CORS_ALLOW_ORIGIN=http://localhost:3000
+      - GLOBAL_LOG_LEVEL=DEBUG
+      - MAIN_LOG_LEVEL=DEBUG
+      - DB_LOG_LEVEL=DEBUG
+      - OLLAMA_LOG_LEVEL=DEBUG
+      - OPENAI_LOG_LEVEL=DEBUG
+      - AUDIT_LOG_LEVEL=REQUEST
+    command: uvicorn open_webui.main:app --host 0.0.0.0 --port 8080 --reload --log-level debug 
