@@ -33,7 +33,7 @@
         '#ff00ff', '#00ffff', '#ffffff', '#000000'
     ];
 
-    const tools = [
+    const tools: Array<{ id: 'pen' | 'rectangle' | 'circle' | 'text' | 'arrow'; name: string; icon: string }> = [
         { id: 'pen', name: 'Pen', icon: '✏️' },
         { id: 'rectangle', name: 'Rectangle', icon: '⬜' },
         { id: 'circle', name: 'Circle', icon: '⭕' },
@@ -381,8 +381,8 @@
                     
                     <img
                         bind:this={imageElement}
-                        {src}
-                        {alt}
+                        src={imageSrc}
+                        alt={imageAlt}
                         class="hidden"
                         on:load={handleImageLoad}
                     />
