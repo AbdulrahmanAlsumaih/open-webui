@@ -221,11 +221,3 @@
         {/if}
     </div>
 </Modal>
-
-<!-- Image Annotation Tool -->
-<ImageAnnotation
-    bind:show={showAnnotationTool}
-    imageSrc={currentAnnotatingSlice !== null ? convertedImages[currentAnnotatingSlice]?.data || '' : ''}
-    imageAlt={currentAnnotatingSlice !== null ? `CT Scan Slice ${currentAnnotatingSlice + 1}` : ''}
-    on:save={handleAnnotationSave}
-/>
