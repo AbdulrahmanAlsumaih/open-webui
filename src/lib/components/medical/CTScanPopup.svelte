@@ -4,7 +4,6 @@
     import { WEBUI_BASE_URL } from '$lib/constants';
     import { uploadFile } from '$lib/apis/files';
     import { toast } from 'svelte-sonner';
-    import ImageAnnotation from './ImageAnnotation.svelte';
 
     interface ConvertedImage {
         data: string;
@@ -21,9 +20,6 @@
     let convertedImages: ConvertedImage[] = [];
     let loading = false;
     let imageLoadErrors: { [key: number]: boolean } = {};
-    let showAnnotationTool = false;
-    let currentAnnotatingSlice: number | null = null;
-    let annotatedImages: { [key: number]: string } = {};
 
     async function convertToImages() {
         loading = true;
@@ -78,8 +74,7 @@
         try {
             // Create an array of selected image files
             const selectedImageFiles = await Promise.all(selectedSlices.map(async (index) => {
-                // Use annotated image if available, otherwise use original
-                const imageData = annotatedImages[index] || convertedImages[index].data;
+                const imageData = convertedImages[index].data;
                 
                 // Convert base64 to blob
                 const response = await fetch(imageData);
@@ -117,19 +112,6 @@
         imageLoadErrors[index] = false;
     }
 
-    function openAnnotationTool(index: number) {
-        currentAnnotatingSlice = index;
-        showAnnotationTool = true;
-    }
-
-    function handleAnnotationSave(event: CustomEvent) {
-        if (currentAnnotatingSlice !== null) {
-            annotatedImages[currentAnnotatingSlice] = event.detail.imageData;
-            showAnnotationTool = false;
-            currentAnnotatingSlice = null;
-        }
-    }
-
     // Convert files when popup opens
     $: if (show && mhdFile && rawFile) {
         convertToImages();
@@ -160,24 +142,13 @@
                             </div>
                         {:else}
                             <img 
-                                src={annotatedImages[i] || image.data} 
+                                src={image.data} 
                                 alt={`Slice ${i + 1}`} 
                                 class="w-full h-auto" 
                                 on:error={() => handleImageError(i)}
                                 on:load={() => handleImageLoad(i)}
                             />
                         {/if}
-                        
-                        <!-- Annotation Button -->
-                        <div class="absolute top-2 left-2">
-                            <button
-                                class="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-green-700"
-                                on:click={(e) => { e.stopPropagation(); openAnnotationTool(i); }}
-                                title="Annotate image"
-                            >
-                                ✏️
-                            </button>
-                        </div>
                         
                         <div class="absolute top-2 right-2">
                             {#if selectedSlices.includes(i)}
@@ -186,15 +157,6 @@
                                 </div>
                             {/if}
                         </div>
-                        
-                        <!-- Annotation indicator -->
-                        {#if annotatedImages[i]}
-                            <div class="absolute bottom-2 left-2">
-                                <div class="bg-green-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-xs">
-                                    ✓
-                                </div>
-                            </div>
-                        {/if}
                     </div>
                 {/each}
             </div>

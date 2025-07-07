@@ -3,7 +3,6 @@
     import { WEBUI_BASE_URL } from '$lib/constants';
     import type { Writable } from 'svelte/store';
     import type { i18n as i18nType } from 'i18next';
-    import ImageAnnotation from './ImageAnnotation.svelte';
 
     interface CTFile {
         id: string;
@@ -27,8 +26,6 @@
     let convertedImages: ConvertedImage[] = [];
     let selectedSlice = 0;
     let annotation = '';
-    let showAnnotationTool = false;
-    let annotatedImageData: string | null = null;
 
     async function loadImages() {
         try {
@@ -107,18 +104,8 @@
     function submit() {
         dispatch('select', { 
             sliceIndex: selectedSlice, 
-            annotation,
-            annotatedImage: annotatedImageData 
+            annotation
         });
-    }
-
-    function handleAnnotationSave(event: CustomEvent) {
-        annotatedImageData = event.detail.imageData;
-        showAnnotationTool = false;
-    }
-
-    function openAnnotationTool() {
-        showAnnotationTool = true;
     }
 
     onMount(() => {
@@ -165,17 +152,6 @@
                 </div>
             {/if}
         </div>
-        <div class="flex gap-2 mb-2">
-            <button 
-                class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center gap-1"
-                on:click={openAnnotationTool}
-            >
-                ✏️ Annotate Image
-            </button>
-            {#if annotatedImageData}
-                <span class="text-green-600 text-sm flex items-center">✓ Annotated</span>
-            {/if}
-        </div>
         
         <textarea 
             bind:value={annotation} 
@@ -203,11 +179,3 @@
         </div>
     {/if}
 </div>
-
-<!-- Image Annotation Tool -->
-<ImageAnnotation
-    bind:show={showAnnotationTool}
-    imageSrc={convertedImages[selectedSlice]?.data || ''}
-    imageAlt={`CT Scan Slice ${selectedSlice + 1}`}
-    on:save={handleAnnotationSave}
-/>
