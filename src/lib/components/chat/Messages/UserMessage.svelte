@@ -152,7 +152,22 @@
 						{#each message.files as file}
 							<div class={($settings?.chatBubble ?? true) ? 'self-end' : ''}>
 								{#if file.type === 'image'}
-									<Image src={file.url} imageClassName=" max-h-96 rounded-lg" />
+									<Image 
+										src={file.url} 
+										imageClassName=" max-h-96 rounded-lg"
+										onAnnotationSave={(imageData) => {
+											console.log('UserMessage: Annotation saved, updating file.url');
+											// Update the file URL with the annotated image
+											file.url = imageData;
+											console.log('UserMessage: file.url updated to:', file.url.substring(0, 50) + '...');
+											// Force reactivity by creating a new array
+											message.files = message.files.slice();
+											// Update the message object to trigger re-render
+											history.messages[messageId] = { ...message };
+											// Trigger message update without submitting
+											editMessage(message.id, { files: message.files }, false);
+										}}
+									/>
 								{:else}
 									<FileItem
 										item={file}
@@ -182,6 +197,11 @@
 													src={file.url}
 													alt="input"
 													imageClassName=" size-14 rounded-xl object-cover"
+													onAnnotationSave={(imageData) => {
+														// Update the file URL with the annotated image
+														file.url = imageData;
+														editedFiles = editedFiles.slice();
+													}}
 												/>
 											</div>
 											<div class=" absolute -top-1 -right-1">

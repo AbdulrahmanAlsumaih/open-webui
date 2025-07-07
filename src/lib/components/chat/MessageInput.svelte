@@ -55,6 +55,7 @@
 	import { KokoroWorker } from '$lib/workers/KokoroWorker';
 
 	import CTScanPopup from '../medical/CTScanPopup.svelte';
+	import ImageAnnotation from '$lib/components/medical/ImageAnnotation.svelte';
 
 	const i18n = getContext('i18n');
 
@@ -314,7 +315,6 @@
 	};
 
 	const inputFilesHandler = async (inputFiles) => {
-		console.log('Input files handler called with:', inputFiles);
 		inputFiles.forEach((file) => {
 			console.log('Processing file:', {
 				name: file.name,
@@ -488,6 +488,25 @@
 <FilesOverlay show={dragged} />
 <ToolServersModal bind:show={showTools} {selectedToolIds} />
 
+<!-- Move ImageAnnotation outside of form to prevent form submission -->
+{#if files.length > 0}
+	{#each files as file, fileIdx}
+		{#if file.type === 'image'}
+			<ImageAnnotation 
+				bind:show={file.showAnnotation} 
+				imageSrc={file.url} 
+				imageAlt="input"
+				on:save={(event) => {
+					const { imageData } = event.detail;
+					file.url = imageData;
+					file.showAnnotation = false;
+					files = files.slice();
+				}}
+			/>
+		{/if}
+	{/each}
+{/if}
+
 {#if loaded}
 	<div class="w-full font-primary">
 		<div class=" mx-auto inset-x-0 bg-transparent flex justify-center">
@@ -652,6 +671,14 @@
 															src={file.url}
 															alt="input"
 															imageClassName=" size-14 rounded-xl object-cover"
+															onAnnotationOpen={() => {
+																// Initialize showAnnotation property if it doesn't exist
+																if (!file.showAnnotation) {
+																	file.showAnnotation = false;
+																}
+																file.showAnnotation = true;
+																files = files.slice();
+															}}
 														/>
 														{#if atSelectedModel ? visionCapableModels.length === 0 : selectedModels.length !== visionCapableModels.length}
 															<Tooltip

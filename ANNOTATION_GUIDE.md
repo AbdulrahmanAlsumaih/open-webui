@@ -1,174 +1,101 @@
-# CT Scan Annotation Feature Guide
+# Image Annotation Feature Guide
 
 ## Overview
 
-The CT scan annotation feature allows users to add visual annotations to CT scan images before using them in conversations. This includes drawing tools, text annotations, and shape markers to highlight important areas in medical images.
-
-## Features
-
-### Available Tools
-
-1. **Pen Tool** ✏️
-   - Freehand drawing
-   - Perfect for highlighting specific areas or drawing attention to details
-
-2. **Rectangle Tool** ⬜
-   - Draw rectangular boxes
-   - Useful for marking regions of interest
-
-3. **Circle Tool** ⭕
-   - Draw circular markers
-   - Great for pinpointing specific locations
-
-4. **Text Tool** T
-   - Add text labels
-   - Click where you want text, then type your annotation
-
-5. **Arrow Tool** ➡️
-   - Draw arrows pointing to specific areas
-   - Useful for indicating direction or pointing to features
-
-### Color Options
-
-- 8 different colors available: Red, Green, Blue, Yellow, Magenta, Cyan, White, Black
-- Choose colors that provide good contrast against the CT scan image
-
-### Line Width Control
-
-- Adjustable line width from 1px to 10px
-- Use thicker lines for better visibility on medical images
+The image annotation feature allows you to draw on and annotate images directly in the chat interface. This is useful for highlighting important areas, adding notes, or marking up images before sending them in a message.
 
 ## How to Use
 
-### In CTViewer Component
+### 1. Upload an Image
+- Drag and drop an image into the chat input area, or
+- Click the file upload button and select an image file
 
-1. **Load a CT scan file** - The system will automatically convert it to images
-2. **Navigate through slices** - Use the slider to view different slices
-3. **Click "✏️ Annotate Image"** - Opens the annotation tool
-4. **Select your tool** - Choose from pen, rectangle, circle, text, or arrow
-5. **Choose color and line width** - Adjust as needed
-6. **Draw on the image** - Click and drag to create annotations
-7. **Add text** - Click the text tool, then click where you want text and type
-8. **Save your annotation** - Click "Save Annotation" when done
-9. **Use the slice** - The annotated image will be included when you submit
+### 2. Annotate the Image
+- Hover over the image in the chat input area
+- Click the blue annotation button (pencil icon) that appears in the top-right corner
+- The annotation modal will open with your image
 
-### In CTScanPopup Component
+### 3. Use Annotation Tools
+The annotation interface provides several tools:
 
-1. **Upload CT files** - Select both .mhd and .raw files
-2. **View converted slices** - All slices will be displayed in a grid
-3. **Click the ✏️ button** on any slice to annotate it
-4. **Use annotation tools** - Same tools available as in CTViewer
-5. **Save annotation** - Your changes are automatically saved
-6. **Select slices** - Choose which annotated slices to use
-7. **Confirm selection** - Annotated images will be included in your selection
+#### Drawing Tools:
+- **Pen Tool** ✏️: Freehand drawing
+- **Rectangle Tool** ⬜: Draw rectangles
+- **Circle Tool** ⭕: Draw circles
+- **Arrow Tool** ➡️: Draw arrows
+- **Text Tool** T: Add text annotations
 
-## Annotation Workflow
+#### Customization:
+- **Colors**: Choose from 8 different colors
+- **Line Width**: Adjust the thickness of lines (1-10px)
 
-### Step-by-Step Process
+#### Actions:
+- **Clear All**: Remove all annotations
+- **Undo Last**: Remove the most recent annotation
+- **Save Annotation**: Apply annotations and close the modal
 
-1. **Prepare your CT scan files**
-   - Ensure you have both .mhd and .raw files
-   - Files should be properly paired
+### 4. Save and Send
+- Click "Save Annotation" to apply your changes
+- The annotated image will replace the original in your message
+- Send the message as usual
 
-2. **Convert to images**
-   - The system automatically converts CT files to viewable images
-   - Wait for conversion to complete
+## Features
 
-3. **Review slices**
-   - Navigate through different slices
-   - Identify areas that need annotation
+### Real-time Preview
+- See your annotations as you draw them
+- All changes are applied in real-time
 
-4. **Add annotations**
-   - Use appropriate tools for your needs
-   - Consider using different colors for different types of annotations
-   - Add text labels for clarity
+### Multiple Annotation Types
+- Draw freehand lines and shapes
+- Add text labels
+- Create arrows to point to specific areas
+- Use different colors for organization
 
-5. **Save and use**
-   - Save your annotations
-   - The annotated images will be included in your conversation
+### Non-destructive Editing
+- Original image is preserved
+- You can always re-annotate if needed
+- Annotations are applied as overlays
 
-## Best Practices
+## Use Cases
 
-### Medical Annotation Guidelines
+### Educational Content
+- Highlight important parts of diagrams
+- Add explanatory text to images
+- Mark up screenshots for tutorials
 
-1. **Use clear, contrasting colors**
-   - Red and green work well for highlighting
-   - Avoid colors that blend with the image
+### Medical Imaging
+- Annotate CT scans or X-rays
+- Mark areas of interest
+- Add measurements or notes
 
-2. **Keep annotations minimal**
-   - Don't overcrowd the image
-   - Focus on the most important areas
+### Design Feedback
+- Mark up design mockups
+- Point out specific elements
+- Add comments to screenshots
 
-3. **Use text sparingly**
-   - Keep text labels short and clear
-   - Position text where it doesn't obscure important details
+### Technical Documentation
+- Highlight UI elements
+- Mark bugs or issues
+- Add explanatory arrows
 
-4. **Be consistent**
-   - Use the same colors for similar types of annotations
-   - Maintain consistent line widths
+## Tips
 
-### Technical Tips
+1. **Use different colors** to organize different types of annotations
+2. **Adjust line width** for better visibility on different image sizes
+3. **Use text annotations** for detailed explanations
+4. **Combine tools** for comprehensive annotations
+5. **Save frequently** to avoid losing work
 
-1. **Save frequently**
-   - Click "Save Annotation" after making significant changes
-   - This prevents loss of work
+## Keyboard Shortcuts
 
-2. **Use undo when needed**
-   - The "Undo Last" button removes the most recent annotation
-   - Use "Clear All" to start over completely
+- **Escape**: Close the annotation modal
+- **Enter** (in text mode): Add text annotation
+- **Mouse drag**: Draw shapes and lines
+- **Click**: Place text or start drawing
 
-3. **Test visibility**
-   - Ensure annotations are clearly visible
-   - Adjust line width and color as needed
+## Technical Notes
 
-## Troubleshooting
-
-### Common Issues
-
-1. **Image not loading**
-   - Check that both .mhd and .raw files are present
-   - Ensure files are properly paired
-   - Try refreshing the page
-
-2. **Annotations not saving**
-   - Make sure you click "Save Annotation"
-   - Check that you have at least one annotation
-   - Verify the image loaded properly
-
-3. **Tool not working**
-   - Ensure you've selected the correct tool
-   - Check that the canvas is properly loaded
-   - Try refreshing the annotation tool
-
-4. **Text not appearing**
-   - Make sure you clicked the text tool first
-   - Click on the image where you want text
-   - Type your text and press Enter or click Add
-
-## Integration
-
-The annotation feature integrates seamlessly with the existing chat system:
-
-- Annotated images are automatically included when you submit slices
-- The original image data is preserved
-- Annotations are saved as part of the image data
-- No additional setup required
-
-## Future Enhancements
-
-Potential improvements for the annotation system:
-
-1. **Measurement tools** - Add rulers and measurement capabilities
-2. **Layer management** - Organize annotations in layers
-3. **Export options** - Save annotations separately
-4. **Collaborative annotations** - Share annotations between users
-5. **AI-assisted annotation** - Automatic detection of regions of interest
-
-## Support
-
-If you encounter issues with the annotation feature:
-
-1. Check the browser console for error messages
-2. Ensure your CT files are in the correct format
-3. Try using a different browser
-4. Contact support with specific error details 
+- Supported image formats: PNG, JPG, JPEG, GIF, WebP, AVIF
+- Annotations are saved as base64-encoded PNG images
+- The original image quality is preserved
+- All annotations are applied client-side for privacy 

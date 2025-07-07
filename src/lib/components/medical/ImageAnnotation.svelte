@@ -3,7 +3,7 @@
     import { toast } from 'svelte-sonner';
 
     export let imageSrc: string;
-    export let imageAlt: string = 'CT Scan Image';
+    export let imageAlt: string = 'Image';
     export let show = false;
 
     const dispatch = createEventDispatcher();
@@ -274,27 +274,53 @@
         });
         
         toast.success('Annotation saved successfully');
+        show = false; // Close the modal after saving
     }
 
     function handleImageLoad() {
         setupCanvas();
     }
 
-    $: if (show && imageSrc) {
-        // Reset when showing
+    let hasInitialized = false;
+    
+    $: if (show && !hasInitialized) {
+        // Reset only when modal first opens
         annotations = [];
         currentAnnotation = null;
         showTextInput = false;
+        hasInitialized = true;
     }
+    
+    $: if (!show) {
+        hasInitialized = false;
+    }
+    
+
 </script>
 
-<div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]" class:hidden={!show}>
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-4 max-w-6xl max-h-[90vh] overflow-auto">
+<div 
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[99999]" 
+    class:hidden={!show}
+    on:click={(e) => {
+        // Prevent clicks on the overlay from reaching underlying elements
+        e.stopPropagation();
+        e.preventDefault();
+    }}
+>
+    <div 
+        class="bg-white dark:bg-gray-800 rounded-lg p-4 max-w-6xl max-h-[90vh] overflow-auto"
+        on:click={(e) => {
+            // Prevent clicks on modal content from reaching underlying elements
+            e.stopPropagation();
+        }}
+    >
         <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-bold">Annotate CT Scan Image</h2>
+            <h2 class="text-xl font-bold">Annotate Image</h2>
             <button 
                 class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                on:click={() => show = false}
+                on:click={() => {
+                    show = false;
+                }}
             >
                 ✕
             </button>
@@ -357,13 +383,16 @@
                     >
                         Undo Last
                     </button>
-                    <button
-                        class="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600"
-                        on:click={saveAnnotation}
-                        disabled={annotations.length === 0}
+                    <div 
+                        class="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600 relative z-50 cursor-pointer"
+                        on:click={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            saveAnnotation();
+                        }}
                     >
                         Save Annotation
-                    </button>
+                    </div>
                 </div>
             </div>
 
